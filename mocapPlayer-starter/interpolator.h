@@ -13,6 +13,7 @@
 
 #include "motion.h"
 #include "quaternion.h"
+#include "vector.h"
 
 enum InterpolationType
 {
@@ -52,6 +53,7 @@ protected:
 
   // quaternion interpolation
   Quaternion<double> Slerp(double t, Quaternion<double> & qStart, Quaternion<double> & qEnd);
+  vector LerpEuler(double t, vector & vStart, vector & vEnd_);
   Quaternion<double> Double(Quaternion<double> p, Quaternion<double> q);
 
   // interpolation routines
