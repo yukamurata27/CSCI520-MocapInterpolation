@@ -368,7 +368,6 @@ void Interpolator::Quaternion2Euler(Quaternion<double> & q, double angles[3])
 
 Quaternion<double> Interpolator::Slerp(double t, Quaternion<double> & qStart, Quaternion<double> & qEnd_)
 {
-  Quaternion<double> q1, q2;
   qStart.Normalize();
   qEnd_.Normalize();
   double theta = acos(
