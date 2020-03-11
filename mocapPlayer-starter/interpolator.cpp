@@ -368,26 +368,17 @@ void Interpolator::Quaternion2Euler(Quaternion<double> & q, double angles[3])
 
 Quaternion<double> Interpolator::Slerp(double t, Quaternion<double> & qStart, Quaternion<double> & qEnd_)
 {
-  Quaternion<double> q1, q2;
   qStart.Normalize();
   qEnd_.Normalize();
+
+  double dot = qStart.dot(qEnd_);
+  if (dot < 0.0) {
+    qStart.neg();
+    dot = -dot;
+  }
   
-  double theta1 = acos(
-                  qStart.Gets() * qEnd_.Gets() +
-                  qStart.Getx() * qEnd_.Getx() +
-                  qStart.Gety() * qEnd_.Gety() +
-                  qStart.Getz() * qEnd_.Getz() );
-  q1 = qStart*(sin((1.f-t)*theta1)/sin(theta1)) + qEnd_*(sin(t*theta1)/sin(theta1));
-
-  double theta2 = acos(
-                    qStart.conj().Gets() * qEnd_.Gets() +
-                    qStart.conj().Getx() * qEnd_.Getx() +
-                    qStart.conj().Gety() * qEnd_.Gety() +
-                    qStart.conj().Getz() * qEnd_.Getz() );
-  q2 = qStart.conj()*(sin((1.f-t)*theta2)/sin(theta2)) + qEnd_*(sin(t*theta2)/sin(theta2));
-
-  if (theta1 < theta2) return q1;
-  else return q2;
+  double theta = acos(dot);
+  return qStart*(sin((1.f-t)*theta)/sin(theta)) + qEnd_*(sin(t*theta)/sin(theta));
 }
 
 vector Interpolator::LerpEuler(double t, vector & vStart, vector & vEnd_)
