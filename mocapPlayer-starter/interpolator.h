@@ -59,9 +59,9 @@ protected:
   // interpolation routines
   void LinearInterpolationEuler(Motion * pInputMotion, Motion * pOutputMotion, int N);
   void BezierInterpolationEuler(Motion * pInputMotion, Motion * pOutputMotion, int N);
+  void HermiteInterpolationEuler(Motion * pInputMotion, Motion * pOutputMotion, int N);
   void LinearInterpolationQuaternion(Motion * pInputMotion, Motion * pOutputMotion, int N);
   void BezierInterpolationQuaternion(Motion * pInputMotion, Motion * pOutputMotion, int N);
-  void HermiteInterpolationEuler(Motion * pInputMotion, Motion * pOutputMotion, int N);
   void HermiteInterpolationQuaternion(Motion * pInputMotion, Motion * pOutputMotion, int N);
 
   // Bezier spline evaluation

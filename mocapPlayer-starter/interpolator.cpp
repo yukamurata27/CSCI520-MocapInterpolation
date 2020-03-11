@@ -39,7 +39,7 @@ void Interpolator::Interpolate(Motion * pInputMotion, Motion ** pOutputMotion, i
     BezierInterpolationQuaternion(pInputMotion, *pOutputMotion, N);
   else if ((m_InterpolationType == HERMITE) && (m_AngleRepresentation == EULER)) // NEW
     HermiteInterpolationEuler(pInputMotion, *pOutputMotion, N);
-  else if ((m_InterpolationType == HERMITE) && (m_AngleRepresentation == QUATERNION))
+  else if ((m_InterpolationType == HERMITE) && (m_AngleRepresentation == QUATERNION)) // NEW
     HermiteInterpolationQuaternion(pInputMotion, *pOutputMotion, N);
   else
   {
@@ -449,37 +449,25 @@ void Interpolator::HermiteInterpolationEuler(Motion * pInputMotion, Motion * pOu
       for (int bone = 0; bone < MAX_BONES_IN_ASF_FILE; bone++) {
         vector v1 = startPosture->bone_rotation[bone];
         vector v2 = endPosture->bone_rotation[bone];
-        vector a, b;
+        vector vprev, vnext;
 
         // Set a (second Hermite control point)
-        if (startKeyframe == 0) {
-          Posture * nextPosture = pInputMotion->GetPosture(endKeyframe + N + 1);
-          vector v3 = nextPosture->bone_rotation[bone];
-          vector tmp = LerpEuler(2.0, v3, v2);
-          a = LerpEuler(1.0/3.0, v1, tmp);
-        } else {
+        if (startKeyframe == 0) // when there is no previous frame
+          vprev = LerpEuler(2.0, v2, v1);
+        else {
           Posture * prevPosture = pInputMotion->GetPosture(startKeyframe - (N + 1));
-          vector vprev = prevPosture->bone_rotation[bone];
-          vector tmp = LerpEuler(2.0, vprev, v1);
-          vector tmp2 = LerpEuler(0.5, tmp, v2);
-          a = LerpEuler(1.0/3.0, v1, tmp2);
+          vprev = prevPosture->bone_rotation[bone];
         }
 
         // Set b (third Hermite control point)
-        if (endKeyframe + N + 1 > inputLength) {
-          Posture * prevPosture = pInputMotion->GetPosture(startKeyframe - (N + 1));
-          vector vprev = prevPosture->bone_rotation[bone];
-          vector tmp = LerpEuler(2.0, vprev, v1);
-          b = LerpEuler(1.0/3.0, v2, tmp);
-        } else {
+        if (endKeyframe + N + 1 > inputLength) // when there is no next frame
+          vnext = LerpEuler(2.0, v1, v2);
+        else {
           Posture * nextPosture = pInputMotion->GetPosture(endKeyframe + N + 1);
-          vector vnext = nextPosture->bone_rotation[bone];
-          vector tmp = LerpEuler(2.0, v1, v2);
-          vector tmp2 = LerpEuler(0.5, tmp, vnext);
-          b = LerpEuler(-1.0/3.0, v2, tmp2);
+          vnext = nextPosture->bone_rotation[bone];
         }
 
-        interpolatedPosture.bone_rotation[bone] = HermiteEuler(t, v1, a, b, v2);
+        interpolatedPosture.bone_rotation[bone] = HermiteEuler(t, vprev, v1, v2, vnext);
       }
 
       pOutputMotion->SetPosture(startKeyframe + frame, interpolatedPosture);
@@ -519,7 +507,7 @@ void Interpolator::HermiteInterpolationQuaternion(Motion * pInputMotion, Motion 
 
       // interpolate bone rotations
       for (int bone = 0; bone < MAX_BONES_IN_ASF_FILE; bone++) {
-        Quaternion<double> startQ, endQ, a, b, interpQ;
+        Quaternion<double> startQ, endQ, qprev, qnext, interpQ;
         
         // convert Euler to quaternion
         double arrRotS[3] = {startPosture->bone_rotation[bone].x(), startPosture->bone_rotation[bone].y(), startPosture->bone_rotation[bone].z()};
@@ -528,44 +516,25 @@ void Interpolator::HermiteInterpolationQuaternion(Motion * pInputMotion, Motion 
         Euler2Quaternion(arrRotE, endQ);
 
         // Get a (second control point)
-        if (startKeyframe == 0) {
-          Posture * q3Posture = pInputMotion->GetPosture(endKeyframe + N + 1);
-          double arrRot3[3] = {q3Posture->bone_rotation[bone].x(), q3Posture->bone_rotation[bone].y(), q3Posture->bone_rotation[bone].z()};
-          Quaternion<double> q3;
-          Euler2Quaternion(arrRot3, q3);
-          Quaternion<double> intermediate = Double(q3, endQ);
-          a = Slerp(1.0/3.0, startQ, intermediate);
-        } else {
+        if (startKeyframe == 0)
+          qprev = Double(endQ, startQ);
+        else {
           Posture * prevPosture = pInputMotion->GetPosture(startKeyframe - (N + 1));
           double arrRotPrev[3] = {prevPosture->bone_rotation[bone].x(), prevPosture->bone_rotation[bone].y(), prevPosture->bone_rotation[bone].z()};
-          Quaternion<double> prev;
-          Euler2Quaternion(arrRotPrev, prev);
-          Quaternion<double> intermediate = Double(prev, startQ);
-          Quaternion<double> aa = Slerp(0.5, intermediate, endQ);
-
-          a = Slerp(1.0/3.0, startQ, aa);
+          Euler2Quaternion(arrRotPrev, qprev);
         }
         
         // Get b (third control point)
-        if (endKeyframe + N + 1 > inputLength) {
-          Posture * PrevPrevPosture = pInputMotion->GetPosture(startKeyframe - (N + 1));
-          double arrRotPrevPrev[3] = {PrevPrevPosture->bone_rotation[bone].x(), PrevPrevPosture->bone_rotation[bone].y(), PrevPrevPosture->bone_rotation[bone].z()};
-          Quaternion<double> qPrevPrev;
-          Euler2Quaternion(arrRotPrevPrev, qPrevPrev);
-          Quaternion<double> intermediate = Double(qPrevPrev, startQ);
-          b = Slerp(1.0/3.0, endQ, intermediate);
-        } else {
+        if (endKeyframe + N + 1 > inputLength)
+          qnext = Double(startQ, endQ);
+        else {
           Posture * nextPosture = pInputMotion->GetPosture(endKeyframe + N + 1);
           double arrRotNext[3] = {nextPosture->bone_rotation[bone].x(), nextPosture->bone_rotation[bone].y(), nextPosture->bone_rotation[bone].z()};
-          Quaternion<double> next;
-          Euler2Quaternion(arrRotNext, next);
-          Quaternion<double> intermediate = Double(startQ, endQ);
-          Quaternion<double> aa = Slerp(0.5, intermediate, next);
-          b = Slerp(-1.0/3.0, endQ, aa);
+          Euler2Quaternion(arrRotNext, qnext);
         }
         
         // interpolate
-        interpQ = HermiteQuaternion(t, startQ, a, b, endQ);
+        interpQ = HermiteQuaternion(t, qprev, startQ, endQ, qnext);
 
         // If SLERP is not applicable, use linear interpolation
         if (isnan(interpQ.Gets())) {
@@ -597,6 +566,7 @@ vector Interpolator::HermiteEuler(double t, vector p0, vector p1, vector p2, vec
     { 0,  0,  1,  0},
     { 1,  0,  0,  0}
   };
+
   // control point matrix
   double control[4][4] = {
     { p0.x(), p0.y(), p0.z(), 0},
@@ -604,6 +574,7 @@ vector Interpolator::HermiteEuler(double t, vector p0, vector p1, vector p2, vec
     { p2.x(), p2.y(), p2.z(), 0},
     { p3.x(), p3.y(), p3.z(), 0},
   };
+
   double rhs[4][4];
   matrix_mult(basis, control, rhs);
 
@@ -629,6 +600,7 @@ Quaternion<double> Interpolator::HermiteQuaternion(double t, Quaternion<double> 
     { 0,  0,  1,  0},
     { 1,  0,  0,  0}
   };
+
   // control point matrix
   double control[4][4] = {
     { p0.Gets(), p0.Getx(), p0.Gety(), p0.Getz()},
@@ -636,6 +608,7 @@ Quaternion<double> Interpolator::HermiteQuaternion(double t, Quaternion<double> 
     { p2.Gets(), p2.Getx(), p2.Gety(), p2.Getz()},
     { p3.Gets(), p3.Getx(), p3.Gety(), p3.Getz()},
   };
+
   double rhs[4][4];
   matrix_mult(basis, control, rhs);
 
