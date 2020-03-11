@@ -10,6 +10,7 @@
 #include <fstream>
 #include "interpolator.h"
 #include "motion.h"
+#include <time.h>
 
 int main(int argc, char **argv) 
 {
@@ -75,6 +76,8 @@ int main(int argc, char **argv)
     interpolationType = LINEAR;
   else if (interpolationTypeString[0] == 'b')
     interpolationType = BEZIER;
+  else if (interpolationTypeString[0] == 'h')
+    interpolationType = HERMITE;
   else
   {
     printf("Error: unknown interpolation type: %s\n", interpolationTypeString);
@@ -99,6 +102,7 @@ int main(int argc, char **argv)
   interpolator.SetAngleRepresentation(angleRepresentation);
 
   printf("Interpolating...\n");
+  clock_t tStart = clock(); // Time interpolation execution
   Motion * pOutputMotion; // interpolated motion (output)
   interpolator.Interpolate(pInputMotion, &pOutputMotion, N);
   if (pOutputMotion == NULL)
@@ -106,6 +110,7 @@ int main(int argc, char **argv)
     printf("Error: interpolation failed. No output generated.\n");
     exit(1);
   }
+  printf("Time taken: %.2fs\n", (double)(clock() - tStart)/CLOCKS_PER_SEC);
   printf("Interpolation completed.\n");
 
   printf("Writing output motion capture file to %s...\n", outputMotionCaptureFile);
