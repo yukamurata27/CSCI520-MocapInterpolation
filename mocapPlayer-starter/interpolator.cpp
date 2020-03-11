@@ -371,12 +371,13 @@ Quaternion<double> Interpolator::Slerp(double t, Quaternion<double> & qStart, Qu
   qStart.Normalize();
   qEnd_.Normalize();
 
+  // Use the shortest rotation
   double dot = qStart.dot(qEnd_);
   if (dot < 0.0) {
     qStart.neg();
     dot = -dot;
   }
-  
+
   double theta = acos(dot);
   return qStart*(sin((1.f-t)*theta)/sin(theta)) + qEnd_*(sin(t*theta)/sin(theta));
 }

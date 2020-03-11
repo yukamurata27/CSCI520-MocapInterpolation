@@ -97,7 +97,7 @@ public:
   inline int operator== (const Quaternion rhs) const; // q2 == q1
   inline int operator!= (const Quaternion rhs) const; // q2 != q1
 
-  inline void neg();
+  inline void neg(); // q = -q
   void Normalize(); // q.Normalize() scales q such that it is unit size
 
   inline void MoveToRightHalfSphere(); //  if scalar part (that is, 's') is negative, this will multiply the quaternion by -1
@@ -105,7 +105,7 @@ public:
   inline real Norm2() const; // returns the squared norm of the quaternion, i.e. s*s + x*x + y*y + z*z
   inline real Norm() const { return sqrt(Norm2()); }
 
-  inline real dot(const Quaternion rhs) const;
+  inline real dot(const Quaternion rhs) const; // returns dot product
 
   // Transforms the quaternion to the corresponding rotation matrix.
   // Quaternion is assumed to be a unit quaternion.
