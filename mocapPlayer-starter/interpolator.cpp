@@ -297,14 +297,14 @@ void Interpolator::BezierInterpolationQuaternion(Motion * pInputMotion, Motion *
           double arrRot3[3] = {q3Posture->bone_rotation[bone].x(), q3Posture->bone_rotation[bone].y(), q3Posture->bone_rotation[bone].z()};
           Quaternion<double> q3;
           Euler2Quaternion(arrRot3, q3);
-          Quaternion<double> intermediate = Slerp(2.0, q3, endQ);
+          Quaternion<double> intermediate = Double(q3, endQ);
           a = Slerp(1.0/3.0, startQ, intermediate);
         } else {
           Posture * prevPosture = pInputMotion->GetPosture(startKeyframe - (N + 1));
           double arrRotPrev[3] = {prevPosture->bone_rotation[bone].x(), prevPosture->bone_rotation[bone].y(), prevPosture->bone_rotation[bone].z()};
           Quaternion<double> prev;
           Euler2Quaternion(arrRotPrev, prev);
-          Quaternion<double> intermediate = Slerp(2.0, prev, startQ);
+          Quaternion<double> intermediate = Double(prev, startQ);
           Quaternion<double> aa = Slerp(0.5, intermediate, endQ);
 
           a = Slerp(1.0/3.0, startQ, aa);
@@ -316,14 +316,14 @@ void Interpolator::BezierInterpolationQuaternion(Motion * pInputMotion, Motion *
           double arrRotPrevPrev[3] = {PrevPrevPosture->bone_rotation[bone].x(), PrevPrevPosture->bone_rotation[bone].y(), PrevPrevPosture->bone_rotation[bone].z()};
           Quaternion<double> qPrevPrev;
           Euler2Quaternion(arrRotPrevPrev, qPrevPrev);
-          Quaternion<double> intermediate = Slerp(2.0, qPrevPrev, startQ);
+          Quaternion<double> intermediate = Double(qPrevPrev, startQ);
           b = Slerp(1.0/3.0, endQ, intermediate);
         } else {
           Posture * nextPosture = pInputMotion->GetPosture(endKeyframe + N + 1);
           double arrRotNext[3] = {nextPosture->bone_rotation[bone].x(), nextPosture->bone_rotation[bone].y(), nextPosture->bone_rotation[bone].z()};
           Quaternion<double> next;
           Euler2Quaternion(arrRotNext, next);
-          Quaternion<double> intermediate = Slerp(2.0, startQ, endQ);
+          Quaternion<double> intermediate = Double(startQ, endQ);
           Quaternion<double> aa = Slerp(0.5, intermediate, next);
           b = Slerp(-1.0/3.0, endQ, aa);
         }
@@ -368,15 +368,26 @@ void Interpolator::Quaternion2Euler(Quaternion<double> & q, double angles[3])
 
 Quaternion<double> Interpolator::Slerp(double t, Quaternion<double> & qStart, Quaternion<double> & qEnd_)
 {
+  Quaternion<double> q1, q2;
   qStart.Normalize();
   qEnd_.Normalize();
-  double theta = acos(
+  
+  double theta1 = acos(
                   qStart.Gets() * qEnd_.Gets() +
                   qStart.Getx() * qEnd_.Getx() +
                   qStart.Gety() * qEnd_.Gety() +
                   qStart.Getz() * qEnd_.Getz() );
+  q1 = qStart*(sin((1.f-t)*theta1)/sin(theta1)) + qEnd_*(sin(t*theta1)/sin(theta1));
 
-  return qStart*(sin((1.f-t)*theta)/sin(theta)) + qEnd_*(sin(t*theta)/sin(theta));
+  double theta2 = acos(
+                    qStart.conj().Gets() * qEnd_.Gets() +
+                    qStart.conj().Getx() * qEnd_.Getx() +
+                    qStart.conj().Gety() * qEnd_.Gety() +
+                    qStart.conj().Getz() * qEnd_.Getz() );
+  q2 = qStart.conj()*(sin((1.f-t)*theta2)/sin(theta2)) + qEnd_*(sin(t*theta2)/sin(theta2));
+
+  if (theta1 < theta2) return q1;
+  else return q2;
 }
 
 vector Interpolator::LerpEuler(double t, vector & vStart, vector & vEnd_)
@@ -386,9 +397,7 @@ vector Interpolator::LerpEuler(double t, vector & vStart, vector & vEnd_)
 
 Quaternion<double> Interpolator::Double(Quaternion<double> p, Quaternion<double> q)
 {
-  // students should implement this
-  Quaternion<double> result;
-  return result;
+  return Slerp(2.0, p, q);
 }
 
 vector Interpolator::DeCasteljauEuler(double t, vector p0, vector p1, vector p2, vector p3)
