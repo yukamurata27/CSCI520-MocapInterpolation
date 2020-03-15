@@ -62,16 +62,17 @@ and selecting "Retarget solution".
 ```
 ./interpolate ASF_FILE AMC_FILE INTERP_MODE ANGLE_REP N OUT_FILE
 ```
-For example,
-```
-./interpolate 131-dance.asf 131_04-dance.amc b e 10 output.amc
-```
+where
 - ASF_FILE :    Choose from [07-walk.asf, 09-run.asf, 131-dance.asf, 135-martialArts.asf]
 - AMC_FILE :    Choose from [07_05-walk.amc, 09_06-run.amc, 131_04-dance.amc, 135_06-martialArts.amc]
 - INTERP_MODE : Choose from [l, b] where l is linear and b is Bezier
 - ANGLE_REP:    Choose from [e, q] where e is Euler and q is quaternion
 - N:            Number of skipped frames
 - OUT_FILE:     Output file name as a user wishes
+For example:
+```
+./interpolate 131-dance.asf 131_04-dance.amc b e 10 output.amc
+```
 
 #### 3) Open mocap data player:
 ```
