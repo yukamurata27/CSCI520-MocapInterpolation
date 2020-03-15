@@ -68,7 +68,8 @@ where
 - INTERP_MODE : Choose from [l, b] where l is linear and b is Bezier
 - ANGLE_REP:    Choose from [e, q] where e is Euler and q is quaternion
 - N:            Number of skipped frames
-- OUT_FILE:     Output file name as a user wishes
+- OUT_FILE:     Output file name as a user wishes 
+
 For example:
 ```
 ./interpolate 131-dance.asf 131_04-dance.amc b e 10 output.amc
