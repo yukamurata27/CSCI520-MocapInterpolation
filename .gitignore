@@ -1,0 +1,17 @@
+# Documents
+YukaMurata_HW2_Report.*
+
+# Unrelated graph images
+Graph6.png
+Graph7.png
+
+# Intermediate files
+*.o
+
+# Executables
+*.exe
+interpolate
+mocapPlayer
+
+# Video folder
+videos/
