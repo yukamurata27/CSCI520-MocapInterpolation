@@ -15,9 +15,7 @@ Implemented in MacOS Catalina.
 
 
 ## Building
-====================================================================================
-How to build fltk in Windows, Linux, MAC OS X
-====================================================================================
+#### 1) How to build fltk in Windows, Linux, MAC OS X
 On Windows and Linux, please follow the corresponding readme 
 files in the folder: fltk-1.3.2
 Note: On Linux, you may need to install the "autoconf" tool.
@@ -41,15 +39,11 @@ Same goes for the debug configuration.
 Note: Both the main homework project and FLTK projects work only 
 on the Win32 platform. Please do not use other platforms (e.g. X64).
 
-====================================================================================
-How to build starter code in Linux, MAC OS X (Assuming fltk has been compiled)
-====================================================================================
+#### 2) How to build starter code in Linux, MAC OS X (Assuming fltk has been compiled)
 1) Enter the %homeworkFolder%/mocapPlayer-starter
 2) make
 
-====================================================================================
-How to build starter code using Visual Studio 2017 (Assuming fltk has been compiled)
-====================================================================================
+#### 3) How to build starter code using Visual Studio 2017 (Assuming fltk has been compiled)
 1) Open the project file in homework folder: IDE-starter/VS2017/mocapPlayer.sln
 2) Choose Debug/Release mode
 3) Compile project: mocapPlayer
@@ -90,7 +84,7 @@ For example,
 
 
 ## User Interface for Mocap Player
-![Mocap Player](readme_content/gui.jpg)
+![Mocap Player](readme_content/gui.png)
 
 
 ## Course Links
