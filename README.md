@@ -1,5 +1,5 @@
 # Mocap Interpolation (OpenGL and C++)
-Motion Capture Key Frame Interpolation as part of the USC CSCI 520 in March 2020.
+Motion Capture Key Frame Interpolation as part of USC CSCI 520 in March 2020.
 
 
 ## Features
@@ -85,8 +85,8 @@ For example:
 - Lastly, press ESC to exit the program
 
 
-## User Interface for Mocap Player
-![Mocap Player](readme_content/gui.png)
+## Mocap Player Demo
+![Mocap Player](readme_content/demo.gif)
 
 
 ## Course Links
